@@ -70,6 +70,9 @@ class FrozenLakeEnv(discrete.DiscreteEnv):
 
         P = {s : {a : [] for a in range(nA)} for s in range(nS)}
 
+        # obtain one-step dynamics for dynamic programming setting
+        self.P = P        
+
         def to_s(row, col):
             return row*ncol + col
         

@@ -5,6 +5,10 @@ def policy_evaluation(env, policy, gamma=1, theta=1e-8):
     Policy Evaluation algorithm
     
     Eval state-value function using Bellman Expectation equation 
+        env: modified environment from openAI Gym with access to MDP through env.P
+        policy: 2D-narray probability representation P[s][a]
+        gamma: discounting factor
+        theta: stopping criteria
     """
     V = np.zeros(env.nS)
 

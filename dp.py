@@ -29,4 +29,8 @@ def policy_evaluation(env, policy, gamma=1, theta=1e-8):
 def q_from_v(env, V, s, gamma=1):
     q = np.zeros(env.nA)
         
+    for i,a in enumerate(env.P[s].keys()):
+        probs, next_states, rewards, dones = zip(*env.P[s][a])
+        q[i] = np.sum(probs*(rewards+gamma*V[np.array(next_states)]))
+
     return q

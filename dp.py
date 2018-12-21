@@ -27,6 +27,15 @@ def policy_evaluation(env, policy, gamma=1, theta=1e-8):
 
 
 def q_from_v(env, V, s, gamma=1):
+    """
+    Q-value from V-value
+    
+    Eval action-value function from value function 
+        env: modified environment from openAI Gym with access to MDP through env.P
+        s: 1D-narray of the V fuction
+        s: current state
+        gamma: discounting factor
+    """
     q = np.zeros(env.nA)
         
     for i,a in enumerate(env.P[s].keys()):

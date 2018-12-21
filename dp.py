@@ -24,3 +24,9 @@ def policy_evaluation(env, policy, gamma=1, theta=1e-8):
                 V[s] = vs
 
     return V
+
+
+def q_from_v(env, V, s, gamma=1):
+    q = np.zeros(env.nA)
+        
+    return q

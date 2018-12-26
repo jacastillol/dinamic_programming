@@ -20,8 +20,8 @@ def policy_evaluation(env, policy, gamma=1, theta=1e-8):
             for a in env.P[s].keys():
                 probs, next_states, rewards, dones = zip(*env.P[s][a])
                 vs += policy[s][a]*np.sum(probs*(rewards+gamma*V[np.array(next_states)]))
-                delta = max(delta, np.abs(vs-V[s]))
-                V[s] = vs
+            delta = max(delta, np.abs(vs-V[s]))
+            V[s] = vs
 
     return V
 

@@ -60,3 +60,27 @@ def policy_improvement(env, V, gamma=1):
         policy[s][argmax(Q[s])] = 1
     
     return policy
+
+def policy_iteration(env, gamma=1, theta=1e-8):
+    """
+    Policy Iteration algorithm for getting an optimal policy
+    
+    Eval action-value function from value function 
+        env: modified environment from openAI Gym with access to MDP through env.P
+        gamma: discounting factor
+        theta: stopping criteria
+    """
+    policy = np.ones([env.nS, env.nA]) / env.nA
+    
+    V = np.zeros(env.nS)
+    is_policy_stable = False
+    while (True):
+        V = policy_evaluation(env, policy, gamma=gamma, theta=theta)
+        policy_ =  policy_improvement(env, V, gamma=gamma)
+        if np.all( policy==policy_ ):
+            is_policy_stable = True
+        policy = policy_
+        if is_policy_stable:
+            break
+
+    return policy, V

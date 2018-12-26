@@ -22,7 +22,17 @@ random_policy = np.ones([env.nS, env.nA]) / env.nA
 
 class Tests(unittest.TestCase):
 
-    def policy_evaluation(self, policy_evaluation):
+    def policy_evaluation_check(self, policy_evaluation):
         soln = policy_evaluation_soln(env, random_policy)
         to_check = policy_evaluation(env, random_policy)
         np.testing.assert_array_almost_equal(soln, to_check)
+
+check = Tests()
+
+def run_check(check_name, func):
+    try:
+        getattr(check, check_name)(func)
+    except check.failureException as e:
+        print('FAILED')
+        return
+    print('PASSED')

@@ -43,3 +43,20 @@ def q_from_v(env, V, s, gamma=1):
         q[i] = np.sum(probs*(rewards+gamma*V[np.array(next_states)]))
 
     return q
+
+def policy_improvement(env, V, gamma=1):
+    """
+    Policy improvement from V-value
+    
+    Eval action-value function from value function 
+        env: modified environment from openAI Gym with access to MDP through env.P
+        V: 1D-narray of the V fuction
+        gamma: discounting factor
+    """
+
+    Q = np.zeros([env.nS, env.nA])
+    for s in range(env.nS):
+        Q[s] = q_from_v(env, V, s)
+        policy[s][argmax(Q[s])] = 1
+    
+    return policy

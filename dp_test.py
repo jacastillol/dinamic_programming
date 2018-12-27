@@ -24,6 +24,14 @@ def q_from_v_soln(env, V, s, gamma=1):
             q[a] += prob * (reward + gamma * V[next_state])
     return q
 
+def policy_improvement_soln(env, V, gamma=1):
+    policy = np.zeros([env.nS, env.nA]) / env.nA
+    for s in range(env.nS):
+        q = q_from_v_soln(env, V, s, gamma)
+        best_a = np.argwhere(q==np.max(q)).flatten()
+        policy[s] = np.sum([np.eye(env.nA)[i] for i in best_a], axis=0)/len(best_a)
+    return policy
+
 env = FrozenLakeEnv()
 random_policy = np.ones([env.nS, env.nA]) / env.nA
 
@@ -42,6 +50,12 @@ class Tests(unittest.TestCase):
             soln[s] = q_from_v_soln(env, V, s)
             to_check[s] = q_from_v(env, V, s)
         np.testing.assert_array_almost_equal(soln, to_check)
+
+    def policy_improvement_check(self, policy_improvement):
+        V = policy_evaluation_soln(env, random_policy)
+        new_policy = policy_improvement(env, V)
+        new_V = policy_evaluation_soln(env, new_policy)
+        self.assertTrue(np.all(new_V >= V))
 
 check = Tests()
 

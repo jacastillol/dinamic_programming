@@ -53,6 +53,7 @@ def policy_improvement(env, V, gamma=1):
         V: 1D-narray of the V fuction
         gamma: discounting factor
     """
+    policy = np.zeros([env.nS, env.nA]) / env.nA
 
     Q = np.zeros([env.nS, env.nA])
     for s in range(env.nS):

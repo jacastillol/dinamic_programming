@@ -58,7 +58,7 @@ def policy_improvement(env, V, gamma=1):
     Q = np.zeros([env.nS, env.nA])
     for s in range(env.nS):
         Q[s] = q_from_v(env, V, s)
-        policy[s][argmax(Q[s])] = 1
+        policy[s][np.argmax(Q[s])] = 1
     
     return policy
 

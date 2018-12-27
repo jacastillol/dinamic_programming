@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 from frozenlake import FrozenLakeEnv
+import copy
 
 def policy_evaluation_soln(env, policy, gamma=1, theta=1e-8):
     V = np.zeros(env.nS)
@@ -32,6 +33,16 @@ def policy_improvement_soln(env, V, gamma=1):
         policy[s] = np.sum([np.eye(env.nA)[i] for i in best_a], axis=0)/len(best_a)
     return policy
 
+def policy_iteration_soln(env, gamma=1, theta=1e-8):
+    policy = np.ones([env.nS, env.nA]) / env.nA
+    while True:
+        V = policy_evaluation_soln(env, policy, gamma, theta)
+        new_policy = policy_improvement_soln(env, V)
+        if (new_policy == policy).all():
+            break;
+        policy = copy.copy(new_policy)
+    return policy, V
+
 env = FrozenLakeEnv()
 random_policy = np.ones([env.nS, env.nA]) / env.nA
 
@@ -56,6 +67,13 @@ class Tests(unittest.TestCase):
         new_policy = policy_improvement(env, V)
         new_V = policy_evaluation_soln(env, new_policy)
         self.assertTrue(np.all(new_V >= V))
+
+    def policy_iteration_check(self, policy_iteration):
+        policy_soln, _ = policy_iteration_soln(env)
+        policy_to_check, _ = policy_iteration(env)
+        soln = policy_evaluation_soln(env, policy_soln)
+        to_check = policy_evaluation_soln(env, policy_to_check)
+        np.testing.assert_array_almost_equal(soln, to_check)
 
 check = Tests()
 

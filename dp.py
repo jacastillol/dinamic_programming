@@ -85,3 +85,37 @@ def policy_iteration(env, gamma=1, theta=1e-8):
             break
 
     return policy, V
+
+def truncated_policy_evaluation(env, policy, V, max_it=1, gamma=1):
+    """
+    Truncated Policy Evaluation from a policy
+
+    Eval action-value function from value function
+        env: modified environment from openAI Gym with access to MDP through env.P
+        policy: 2D-array policy[s][a]
+        V: 1D-array V[s]
+        max_it: stopping criteria
+        gamma: discounting factor
+    """
+    for counter in range(max_it):
+        for s in range(env.nS):
+            vs = 0
+            for a in env.P[s].keys():
+                probs, next_states, rewards, dones = zip(*env.P[s][a])
+                vs += policy[s][a]*np.sum(probs*(rewards+gamma*V[np.array(next_states)]))
+            V[s] = vs
+
+    return V
+
+def truncated_policy_iteration(env, max_it=1, gamma=1, theta=1e-8):
+    V = np.zeros(env.nS)
+    policy = np.zeros([env.nS, env.nA]) / env.nA
+
+    while (True):
+        policy =  policy_improvement(env, V, gamma=gamma)
+        Vold = V.copy()
+        V = policy_evaluation(env, policy, gamma=gamma, theta=theta)
+        if max(V-Vold)<theta:
+            break
+
+    return policy, V

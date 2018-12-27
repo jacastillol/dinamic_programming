@@ -108,6 +108,16 @@ def truncated_policy_evaluation(env, policy, V, max_it=1, gamma=1):
     return V
 
 def truncated_policy_iteration(env, max_it=1, gamma=1, theta=1e-8):
+    """
+    Truncated Policy Iteration
+
+    Eval action-value function from value function
+        env: modified environment from openAI Gym with access to MDP through env.P
+        policy: 2D-array policy[s][a]
+        max_it: stopping criteria
+        gamma: discounting factor
+        theta:
+    """
     V = np.zeros(env.nS)
     policy = np.zeros([env.nS, env.nA]) / env.nA
 

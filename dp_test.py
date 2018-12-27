@@ -75,6 +75,9 @@ class Tests(unittest.TestCase):
         to_check = policy_evaluation_soln(env, policy_to_check)
         np.testing.assert_array_almost_equal(soln, to_check)
 
+    def truncated_policy_iteration_check(self, truncated_policy_iteration):
+        self.policy_iteration_check(truncated_policy_iteration)
+
 check = Tests()
 
 def run_check(check_name, func):

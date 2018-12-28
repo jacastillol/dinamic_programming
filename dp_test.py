@@ -78,6 +78,9 @@ class Tests(unittest.TestCase):
     def truncated_policy_iteration_check(self, truncated_policy_iteration):
         self.policy_iteration_check(truncated_policy_iteration)
 
+    def value_iteration_check(self, value_iteration):
+        self.policy_iteration_check(value_iteration)
+
 check = Tests()
 
 def run_check(check_name, func):

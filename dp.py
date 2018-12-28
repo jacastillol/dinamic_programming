@@ -129,3 +129,18 @@ def truncated_policy_iteration(env, max_it=1, gamma=1, theta=1e-8):
             break
 
     return policy, V
+
+def value_iteration(env, gamma=1, theta=1e-8):
+    V = np.zeros(env.nS)
+    
+    while True:
+        delta = 0
+        for s in range(env.nS):
+            vs = V[s]
+            V[s] = max(q_from_v(env, V, s, gamma))
+            delta = max(delta, np.abs(vs-V[s]))
+        if delta < theta:
+            break
+    policy = policy_improvement(env, V, gamma)
+    
+    return policy, V

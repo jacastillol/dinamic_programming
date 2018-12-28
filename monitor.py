@@ -29,6 +29,8 @@ def interact(env, agent, num_episodes=20000, window=100):
         state = env.reset()
         # initialize the sampled reward
         samp_reward = 0
+        # GLIE
+        agent.glie_eps(i_episode)
         while True:
             # agent selects an action
             action = agent.select_action(state)
@@ -53,7 +55,7 @@ def interact(env, agent, num_episodes=20000, window=100):
             if avg_reward > best_avg_reward:
                 best_avg_reward = avg_reward
                 # monitor progress
-        print("\rEpisode {}/{} || Best average reward {}".format(i_episode, num_episodes, best_avg_reward), end="")
+        print("\rEpisode {}/{} || Best average reward {} || Agent epsilon {} ".format(i_episode, num_episodes, best_avg_reward, agent.eps), end="")
         sys.stdout.flush()
         # check if task is solved (according to OpenAI Gym)
         if best_avg_reward >= 9.7:

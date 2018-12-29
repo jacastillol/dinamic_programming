@@ -63,8 +63,10 @@ def dqn_interact(env, agent,
         else:
             message = "\rEpisode {}/{} || Best average reward {} "
             print(message.format(i_episode, n_episodes, best_avg_reward),end="")
+        # stopping criteria
         if np.mean(samp_rewards)>=200.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.
                   format(i_episode, np.mean(samp_rewards)))
+            break
 
     return avg_rewards, best_avg_reward

@@ -57,11 +57,11 @@ def dqn_interact(env, agent,
             if avg_reward > best_avg_reward:
                 best_avg_reward = avg_reward
         # monitor progress
-        message = "\rEpisode {}/{} || Best average reward {} "
+        message = "\rEpisode {}/{} || Best average reward {} || Epsilon {:.5f} "
         if i_episode % 100 == 0:
-            print(message.format(i_episode, n_episodes, best_avg_reward))
+            print(message.format(i_episode, n_episodes, best_avg_reward, eps))
         else:
-            print(message.format(i_episode, n_episodes, best_avg_reward),end="")
+            print(message.format(i_episode, n_episodes, best_avg_reward, eps),end="")
         # stopping criteria
         if np.mean(samp_rewards)>=200.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.

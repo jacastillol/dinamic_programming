@@ -17,8 +17,10 @@ def dqn_interact(env, agent,
         eps_end (float): minimum value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
+    # initialize average rewards
+    avg_rewards = deque(maxlen=n_episodes)
     # initialize monitor for most recent rewards
-    samp_reward = deque(maxlen=window)
+    samp_rewards = deque(maxlen=window)
     # initialize best average reward
     best_avg_reward = -np.inf
     # initialize eps
@@ -56,12 +58,11 @@ def dqn_interact(env, agent,
                 best_avg_reward = avg_reward
         # monitor progress
         if i_episode % 100 == 0:
-            message = "\nEpisode {}/{} || Best average reward {} || Agent epsion {} "
-            end_msg = "\n"
+            message = "\rEpisode {}/{} || Best average reward {} "
+            print(message.format(i_episode, n_episodes, best_avg_reward))
         else:
-            message = "\rEpisode {}/{} || Best average reward {} || Agent epsion {} "
-            end_msg = ""
-        print(message.format(), end=end_msg)
+            message = "\rEpisode {}/{} || Best average reward {} "
+            print(message.format(i_episode, n_episodes, best_avg_reward),end="")
         if np.mean(samp_rewards)>=200.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.
                   format(i_episode, np.mean(samp_rewards)))

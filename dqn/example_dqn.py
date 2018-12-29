@@ -4,4 +4,4 @@ import gym
 
 env = gym.make('LunarLander-v2')
 agent = Agent(state_size=8, action_size=4, seed=0)
-avg_reward, best_avg_reward = dqn_interact(env, agent)
+all_returns, avg_reward, best_avg_reward = dqn_interact(env, agent)

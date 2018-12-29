@@ -1,5 +1,6 @@
 from collections import deque
 import numpy as np
+import torch
 
 def dqn_interact(env, agent,
                  n_episodes=2000, window=100, max_t=1000,
@@ -17,6 +18,8 @@ def dqn_interact(env, agent,
         eps_end (float): minimum value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
+    # all returns
+    all_returns = []
     # initialize average rewards
     avg_rewards = deque(maxlen=n_episodes)
     # initialize monitor for most recent rewards
@@ -46,6 +49,7 @@ def dqn_interact(env, agent,
                 break
         # save final sampled reward
         samp_rewards.append(samp_reward)
+        all_returns.append(samp_reward)
         # update epsion with GLIE
         eps = max(eps_end, eps_decay*eps)
         if (i_episode >= 100):
@@ -66,6 +70,7 @@ def dqn_interact(env, agent,
         if np.mean(samp_rewards)>=200.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.
                   format(i_episode, np.mean(samp_rewards)))
+            torch.save(agent.actor_local.state.dict(), 'checkpoint.pth')
             break
 
-    return avg_rewards, best_avg_reward
+    return all_returns, avg_rewards, best_avg_reward

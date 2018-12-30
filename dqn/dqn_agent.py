@@ -9,6 +9,7 @@ import random
 BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 64         # minibatch size
 GAMMA = 0.99            # discount factor
+TAU = 1e-3              # for soft update or target parameters
 LR = 5e-4               # learning rate
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,8 +28,9 @@ class Agent():
         self.nA = action_size
         self.nS = state_size
 
-        # Actor
+        # Actor and Actor Target Networks
         self.actor_local = Actor(self.nS, self.nA, seed).to(device)
+        self.actor_target = Actor(self.nS, self.nA, seed).to(device)
         self.optimizer = optim.Adam(self.actor_local.parameters(), lr=LR)
 
         # Replay memory
@@ -74,7 +76,7 @@ class Agent():
         states, actions, rewards, next_states, dones = experiences
 
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.actor_local(next_states).detach().max(1)[0].unsqueeze(1)
+        Q_targets_next = self.actor_target(next_states).detach().max(1)[0].unsqueeze(1)
         # Compute Q targets for current states
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
@@ -87,6 +89,22 @@ class Agent():
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
+        # Update target network
+        self.soft_update(self.actor_local, self.actor_target, TAU)
+
+    def soft_update(self, local_model, target_model, tau):
+        """ Soft update model parameters.
+        θ_target = τ*θ_local + (1 + τ)*θ_target
+
+        Params
+        ======
+            local_model (PyTorch model): weights will be copied from
+            target_model (PyTorch model): weights will be copied to
+            tau (float): interpolation parameter
+        """
+        for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
+            target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 
 
 class ReplayBuffer:

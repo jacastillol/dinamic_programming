@@ -24,6 +24,18 @@ class Policy:
 
 def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
                   print_every=100, noise_scale=1e-2):
+    """ Hill Climbing policy search method
+
+    Params
+    ======
+         env: Gym Environment class
+         policy: Policy class
+         n_episodes (int): maximum number of training episodes
+         max_t (int): maximum number of timesteps per episode
+         gamma (float): discount rate
+         print_every (int): how often to print avg. score (over last 1000)
+         noise_scale (float):
+    """
     # initialize monitors
     scores_deque = deque(maxlen=100)
     scores = []
@@ -62,9 +74,10 @@ def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
             print('\rEpisode {}\tAverage Score: {:.2f}'.
                   format(i_episode, np.mean(scores_deque)))
         # stop criteria
-        if np.mean(scores_deque)>=90.0:
-            print('\nEnvironment solved in {:d} iterations!\tAverage Score{:.2f}'.
+        if np.mean(scores_deque)>=195.0:
+            print('\nEnvironment solved in {:d} iterations!\tAverage Score {:.2f}'.
                   format(i_episode, np.mean(scores_deque)))
+            policy.w = best_w
             break
     return scores, scores_deque
 

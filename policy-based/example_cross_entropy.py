@@ -10,3 +10,13 @@ print('action space:', env.action_space)
 print('  - low:', env.action_space.low)
 print('  - high:', env.action_space.high)
 
+state = env.reset()
+while True:
+    action = [np.random.uniform(low=-1.0,high=1.0)]
+    env.render()
+    next_state, reward, done, _ = env.step(action)
+    state = next_state
+    if done:
+        break
+
+env.close()

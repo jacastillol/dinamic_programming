@@ -87,6 +87,7 @@ def cem(env, agent, n_iterations=500, max_t=1000, gamma=1.0, print_every=10,
     scores = []
     # init weights randomly
     best_weight = sigma*np.random.randn(agent.get_weights_dim())
+    # search by n iterations
     for  i_iteration in range(1,n_iterations+1):
         # add a random noise to weights for each population member
         weights_pop = [best_weight + (sigma*np.random.randn(agent.get_weights_dim()))

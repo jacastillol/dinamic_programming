@@ -22,14 +22,17 @@ class Policy:
         return action
         
 
-def hill_climbing(env, policy, n_iterations=1000, max_t=1000, gamma=1.0,
+def hill_climbing(env, policy, n_episode=1000, max_t=1000, gamma=1.0,
                   print_every=100, noise_scale=1e-2):
+    # initialize monitors
     scores_deque = deque(maxlen=100)
     scores = []
     best_R = -np.Inf
     best_w = policy.w
+    # search by n completed episodes
     for i_episode  in range(1, n_episodes+1):
         rewards = []
+        # interact with the environment
         state = env.reset()
         for t in range(max_t):
             action = policy.act(state)
@@ -37,20 +40,33 @@ def hill_climbing(env, policy, n_iterations=1000, max_t=1000, gamma=1.0,
             rewards.append(reward)
             if done:
                 break
+        # store data
         scores_deque.append(sum(rewards))
         scores.append(sum(rewards))
-
+        # evaluate return
         discounts = [gamma**i for i in range(len(rewards)+1)]
         R = sum([a*b for g,r in zip(discounts, rewards)])
-
-        if R >= best_R:
+        # policy improvement
+        if R >= best_R: # found better weights
             best_R = R
             best_w = policy.w
-            noice_scale = max(1e-3, noise_scale/2)
+            noise_scale = max(1e-3, noise_scale/2)
             policy.w += noise_scale * np.random.rand(*policy.w.shape)
-        else:
-            noice_scale = min(2, noise_scale*2)
-            policy.w += noise_scale * np.random.rand(*policy.w.shape)
+        else:           # did not find better weights
+            noise_scale = min(2, noise_scale*2)
+            policy.w = best_w + noise_scale * np.random.rand(*policy.w.shape)
+        # monitor output
+        print('\rEpisode {}\tAverage Score: {:.2f}'.
+              format(i_iteration, np.mean(scores_deque)),end='')
+        if i_episode % print_every == 0:
+            print('\rEpisode {}\tAverage Score: {:.2f}'.
+                  format(i_episode, np.mean(scores_deque)))
+        # stop criteria
+        if np.mean(scores_deque)>=90.0:
+            print('\nEnvironment solved in {:d} iterations!\tAverage Score{:.2f}'.
+                  format(i_iepisode, np.mean(scores_deque)))
+            break
+    return scores, scores_deque
 
 # create a new environment with a seed
 env =  gym.make('CartPole-v0')

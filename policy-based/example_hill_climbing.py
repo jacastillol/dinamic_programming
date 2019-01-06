@@ -11,18 +11,18 @@ class Policy:
 
     def forward(self, state):
         x =  np.dot(state, self.w)
-        return np.exp(x)/sum(np.exp())
+        return np.exp(x)/sum(np.exp(x))
 
     def act(self, state):
         probs = self.forward(state)
         # option 1. stochastic
-        action = np.random.choice(2, p=probs)
+        # action = np.random.choice(2, p=probs)
         # option 2. deterministic policy
         action =  np.argmax(probs)
         return action
         
 
-def hill_climbing(env, policy, n_episode=1000, max_t=1000, gamma=1.0,
+def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
                   print_every=100, noise_scale=1e-2):
     # initialize monitors
     scores_deque = deque(maxlen=100)
@@ -45,7 +45,7 @@ def hill_climbing(env, policy, n_episode=1000, max_t=1000, gamma=1.0,
         scores.append(sum(rewards))
         # evaluate return
         discounts = [gamma**i for i in range(len(rewards)+1)]
-        R = sum([a*b for g,r in zip(discounts, rewards)])
+        R = sum([g*r for g,r in zip(discounts, rewards)])
         # policy improvement
         if R >= best_R: # found better weights
             best_R = R
@@ -57,14 +57,14 @@ def hill_climbing(env, policy, n_episode=1000, max_t=1000, gamma=1.0,
             policy.w = best_w + noise_scale * np.random.rand(*policy.w.shape)
         # monitor output
         print('\rEpisode {}\tAverage Score: {:.2f}'.
-              format(i_iteration, np.mean(scores_deque)),end='')
+              format(i_episode, np.mean(scores_deque)),end='')
         if i_episode % print_every == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.
                   format(i_episode, np.mean(scores_deque)))
         # stop criteria
         if np.mean(scores_deque)>=90.0:
             print('\nEnvironment solved in {:d} iterations!\tAverage Score{:.2f}'.
-                  format(i_iepisode, np.mean(scores_deque)))
+                  format(i_episode, np.mean(scores_deque)))
             break
     return scores, scores_deque
 
@@ -72,9 +72,13 @@ def hill_climbing(env, policy, n_episode=1000, max_t=1000, gamma=1.0,
 env =  gym.make('CartPole-v0')
 env.seed(0)
 np.random.seed(0)
+# create agent
+policy = Policy()
 # print state and action spaces dimensions
 print('observation space', env.observation_space)
 print('action space', env.action_space)
+# hill climbing policy-based method
+scores, scores_deque = hill_climbing(env,policy)
 # plot output
 scores = []
 fig = plt.figure()

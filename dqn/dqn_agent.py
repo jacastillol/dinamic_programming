@@ -11,6 +11,7 @@ BATCH_SIZE = 64         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update or target parameters
 LR = 5e-4               # learning rate
+UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -36,14 +37,21 @@ class Agent():
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
 
+        # Initialize time step (for updating every UPDATE_EVERY steps)
+        self.t_step = 0
+
     def step(self, state, action, reward, next_state, done):
         """ Interact Agent and Environment.
         """
         self.memory.add(state, action, reward, next_state, done)
 
-        if len(self.memory) > BATCH_SIZE:
-            experiences = self.memory.sample()
-            self.learn(experiences, GAMMA)
+        # Learn every UPDATE_EVERY time steps.
+        self.t_step = (self.t_step + 1) % UPDATE_EVERY
+        if self.t_step ==0:
+            # If enough samples are available in memory, get random subset and learn
+            if len(self.memory) > BATCH_SIZE:
+                experiences = self.memory.sample()
+                self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0):
         """ Returns actions for a given state as per current policy.

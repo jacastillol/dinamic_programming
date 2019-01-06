@@ -31,7 +31,7 @@ class Agent(nn.Module):
         x = F.tanh(self.fc2(x))
         return x.cpu().data
 
-    def get_weigths_dim(self):
+    def get_weights_dim(self):
         return (self.s_size+1)*self.h_size + (self.h_size+1)*self.a_size
 
     def set_weights(self, weights):
@@ -42,7 +42,7 @@ class Agent(nn.Module):
         fc1_end = (s_sz*h_sz) + h_sz
         fc1_W = torch.from_numpy(weights[:s_sz *h_sz].reshape(s_sz,h_sz))
         fc1_b = torch.from_numpy(weights[s_sz *h_sz:fc1_end])
-        fc2_W = torch.from_numpy(weights[fc1_end:fc1_end+(s_sz *h_sz)].reshape(h_sz,a_sz))
+        fc2_W = torch.from_numpy(weights[fc1_end:fc1_end+(h_sz *a_sz)].reshape(h_sz,a_sz))
         fc2_b = torch.from_numpy(weights[fc1_end+(h_sz*a_sz):])
         # set the weights for each layer
         self.fc1.weight.data.copy_(fc1_W.view_as(self.fc1.weight.data))

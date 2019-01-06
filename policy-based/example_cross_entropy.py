@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from collections import deque
+import matplotlib.pyplot as plt
 import gym
 import torch
 import torch.nn as nn

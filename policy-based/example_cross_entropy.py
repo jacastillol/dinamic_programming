@@ -3,6 +3,9 @@ from collections import deque
 import gym
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class Agent(nn.Module):
     """ Neural Network Agent
@@ -33,8 +36,8 @@ class Agent(nn.Module):
 
     def set_weights(self, weights):
         s_sz = self.s_size
-        h_sz = self.h_size)
-        a_sz = self.a_size)
+        h_sz = self.h_size
+        a_sz = self.a_size
         # separate the weights for each layer
         fc1_end = (s_sz*h_sz) + h_sz
         fc1_W = torch.from_numpy(weights[:s_sz *h_sz].reshape(s_sz,h_sz))
@@ -60,12 +63,14 @@ class Agent(nn.Module):
                 break
         return episode_return
 
-def cem(n_iterations=500, max_t=1000, gamma=1.0, print_every=10,
+def cem(env, agent, n_iterations=500, max_t=1000, gamma=1.0, print_every=10,
         pop_size=50, elite_frac=0.2, sigma=0.5):
     """ Cross Entropy policy search method
 
     Params
     ======
+         env: Gym Environment class
+         agent: Agent class
          n_iterations (int): maximum number of training iterations
          max_t (int): maximum number of timesteps per episode
          gamma (float): discount rate
@@ -74,7 +79,7 @@ def cem(n_iterations=500, max_t=1000, gamma=1.0, print_every=10,
          elite_frac (float): percentage of top performers to use in update
          sigma (float): standard deviation of additive noise
     """
-    n_elite = int(pop_size*elite_franc)
+    n_elite = int(pop_size*elite_frac)
     # intialize monitors
     scores_deque = deque(maxlen=100)
     scores = []
@@ -102,26 +107,41 @@ def cem(n_iterations=500, max_t=1000, gamma=1.0, print_every=10,
             print('\nEnvironment solved in {:d} iterations!\tAverage Score{:.2f}'.
                   format(i_iteration, np.mean(scores_deque)))
             break
-
     return scores, scores_deque
 
 # create a new environment with a seed
 env = gym.make('MountainCarContinuous-v0')
 env.seed(0)
 np.random.seed(0)
+# create agent
+agent = Agent(env).to(device)
 # print state and action spaces dimensions
 print('observation space:', env.observation_space)
 print('action space:', env.action_space)
 print('  - low:', env.action_space.low)
 print('  - high:', env.action_space.high)
+# cross entropy policy-based method
+scores, scores_deque = cem(env, agent)
+# postprocess training
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.plot(np.arange(1, len(scores)+1), scores)
+plt.plot(np.arange(1, len(scores_deque)+1), scores_deque)
+plt.ylabel('Score')
+plt.xlabel('Episode #')
+plt.show()
+# load trained agent
+agent.load_state_dict(torch.load('checkpoint.pth'))
 # watch how agent performs
 state = env.reset()
 while True:
-    action = [np.random.uniform(low=-1.0,high=1.0)]
+    state = torch.from_numpy(state).float().to(device)
+    with torch.no_grad():
+        action = agent(state)
     env.render()
     next_state, reward, done, _ = env.step(action)
     state = next_state
     if done:
         break
-
+# close environment
 env.close()

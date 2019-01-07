@@ -16,9 +16,9 @@ class Policy:
     def act(self, state):
         probs = self.forward(state)
         # option 1. stochastic
-        # action = np.random.choice(2, p=probs)
+        action = np.random.choice(2, p=probs)
         # option 2. deterministic policy
-        action =  np.argmax(probs)
+        # action =  np.argmax(probs)
         return action
         
 
@@ -103,7 +103,7 @@ plt.show()
 # watch a smart agent
 state = env.reset()
 for t in range(2000):
-    action = np.random.choice(np.arange(2)) # policy.act(state)
+    action = policy.act(state)
     env.render()
     time.sleep(0.1)
     state, reward, done, _ = env.step(action)

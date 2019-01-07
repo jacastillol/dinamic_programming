@@ -7,7 +7,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.distributions import Categorical
 
+torch.manual_seed(0)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Policy(nn.Module):
@@ -53,7 +55,7 @@ def reinforce(env, policy, n_episodes=1000, max_t=1000, gamma=1.0, print_every=1
         state = env.reset()
         for t in range(max_t):
             action, log_prob = policy.act(state)
-            saved_log_probs.append(log_probs)
+            saved_log_probs.append(log_prob)
             state, reward, done, _ = env.step(action)
             rewards.append(reward)
             if done:
@@ -83,7 +85,6 @@ def reinforce(env, policy, n_episodes=1000, max_t=1000, gamma=1.0, print_every=1
         if np.mean(scores_deque)>=195.0:
             print('\nEnvironment solved in {:d} iterations!\tAverage Score {:.2f}'.
                   format(i_episode, np.mean(scores_deque)))
-            policy.w = best_w
             break
     return scores, scores_deque
 
@@ -97,8 +98,8 @@ optimizer = optim.Adam(policy.parameters(), lr=1e-2)
 # print state and action spaces dimensions
 print('observation space', env.observation_space)
 print('action space', env.action_space)
-# hill climbing policy-based method
-scores, scores_deque = hill_climbing(env,policy)
+# REINFORCE policy-based method
+scores, scores_deque = reinforce(env,policy)
 # plot output
 scores = []
 fig = plt.figure()
@@ -110,7 +111,7 @@ plt.show()
 # watch a smart agent
 state = env.reset()
 for t in range(2000):
-    action = np.random.choice(np.arange(2)) # policy.act(state)
+    action, _ = policy.act(state)
     env.render()
     time.sleep(0.1)
     state, reward, done, _ = env.step(action)

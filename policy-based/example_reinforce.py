@@ -30,9 +30,8 @@ class Policy(nn.Module):
         return action.item(), m.log_prob(action)
         
 
-def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
-                  print_every=100, noise_scale=1e-2):
-    """ Hill Climbing policy search method
+def reinforce(env, policy, n_episodes=1000, max_t=1000, gamma=1.0, print_every=100):
+    """ REINFORCE policy search method
 
     Params
     ======
@@ -42,20 +41,19 @@ def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
          max_t (int): maximum number of timesteps per episode
          gamma (float): discount rate
          print_every (int): how often to print avg. score (over last 1000)
-         noise_scale (float):
     """
     # initialize monitors
     scores_deque = deque(maxlen=100)
     scores = []
-    best_R = -np.Inf
-    best_w = policy.w
     # search by n completed episodes
     for i_episode  in range(1, n_episodes+1):
+        saved_log_probs = []
         rewards = []
         # interact with the environment
         state = env.reset()
         for t in range(max_t):
-            action = policy.act(state)
+            action, log_prob = policy.act(state)
+            saved_log_probs.append(log_probs)
             state, reward, done, _ = env.step(action)
             rewards.append(reward)
             if done:
@@ -67,14 +65,14 @@ def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
         discounts = [gamma**i for i in range(len(rewards)+1)]
         R = sum([g*r for g,r in zip(discounts, rewards)])
         # policy improvement
-        if R >= best_R: # found better weights
-            best_R = R
-            best_w = policy.w
-            noise_scale = max(1e-3, noise_scale/2)
-            policy.w += noise_scale * np.random.rand(*policy.w.shape)
-        else:           # did not find better weights
-            noise_scale = min(2, noise_scale*2)
-            policy.w = best_w + noise_scale * np.random.rand(*policy.w.shape)
+        policy_loss = []
+        for log_prob in saved_log_probs:
+            policy_loss.append(-log_prob * R)
+        policy_loss = torch.cat(policy_loss).sum()
+        # backpropagation
+        optimizer.zero_grad()
+        policy_loss.backward()
+        optimizer.step()
         # monitor output
         print('\rEpisode {}\tAverage Score: {:.2f}'.
               format(i_episode, np.mean(scores_deque)),end='')

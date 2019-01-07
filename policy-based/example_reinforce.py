@@ -6,6 +6,7 @@ from collections import deque
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -92,8 +93,9 @@ def hill_climbing(env, policy, n_episodes=1000, max_t=1000, gamma=1.0,
 env =  gym.make('CartPole-v0')
 env.seed(0)
 np.random.seed(0)
-# create agent
-policy = Policy()
+# create agent and optimizer
+policy = Policy().to(device)
+optimizer = optim.Adam(policy.parameters(), lr=1e-2)
 # print state and action spaces dimensions
 print('observation space', env.observation_space)
 print('action space', env.action_space)
